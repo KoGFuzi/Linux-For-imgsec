@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+from PIL import Image
+import pytesseract
+
+def recognize_image_content(image_path):
+    try:
+        # 打开图像
+        img = Image.open(image_path)
+        
+        # 将图像转换为灰度图，提高OCR准确性
+        img = img.convert('L')
+        
+        # 使用 pytesseract 识别图像中的文本
+        text = pytesseract.image_to_string(img)
+        
+        # 打印识别结果
+        print("\n图像中识别到的内容：")
+        if text.strip():
+            print(text)
+        else:
+            print("未识别到任何文本内容")
+            
+    except FileNotFoundError:
+        print(f"错误：找不到文件 {image_path}")
+    except Exception as e:
+        print(f"发生错误：{str(e)}")
+
+def main():
+    while True:
+        # 获取用户输入的图像路径
+        image_path = input("请输入图像路径（输入 'quit' 退出）：")
+        
+        # 检查是否退出
+        if image_path.lower() == 'quit':
+            print("程序已退出")
+            break
+            
+        # 调用识别函数
+        recognize_image_content(image_path)
+
+if __name__ == "__main__":
+    print("图像内容识别程序（运行于 Linux）")
+    print("支持常见图像格式：jpg, png, bmp 等")
+    main()
