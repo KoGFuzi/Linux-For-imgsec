@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+from PIL import Image, ImageEnhance
+import pytesseract
+import os
+
+SUPPORTED_FORMATS = ('.jpg', '.png', '.bmp')
+DEFAULT_LANG = 'eng'
+cache = {}
+
+def recognize_image_content(image_path, lang=DEFAULT_LANG):
+    try:
+        if not image_path.lower().endswith(SUPPORTED_FORMATS):
+            print("错误：仅支持 jpg, png, bmp 格式")
+            return
+        
+        if image_path in cache:
+            print("从缓存中读取结果：")
+            print(cache[image_path])
+            return
+
+        img = Image.open(image_path).convert('L')
+        img = ImageEnhance.Contrast(img).enhance(2.0)  # 增强对比度
+        text = pytesseract.image_to_string(img, lang=lang)
+        
+        print("\n图像中识别到的内容：")
+        if text.strip():
+            print(text)
+            cache[image_path] = text
+        else:
+            print("未识别到任何文本内容")
+            
+    except FileNotFoundError:
+        print(f"错误：找不到文件 {image_path}")
+    except PermissionError:
+        print(f"错误：无权限访问文件 {image_path}")
+    except pytesseract.TesseractNotFoundError:
+        print("错误：Tesseract OCR 未安装")
+    except Exception as e:
+        print(f"发生错误：{str(e)}")
+
+def main():
+    print("图像内容识别程序（运行于 Linux）")
+    print("支持格式：jpg, png, bmp 等")
+    print("示例：/home/user/image.jpg 或 'quit' 退出")
+    
+    while True:
+        image_path = input("请输入或拖放图像路径（输入 'quit' 退出）：").strip().strip("'\"")
+        if image_path.lower() == 'quit':
+            print("程序已退出")
+            break
+        lang = input("请输入识别语言（默认 'eng'）：").strip() or DEFAULT_LANG
+        recognize_image_content(image_path, lang)
+
+if __name__ == "__main__":
+    main()
